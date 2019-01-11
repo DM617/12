@@ -1,31 +1,94 @@
-#include <iostream> 
-#include <map> //подключили библиотеку для работы с map 
-using namespace std; 
+#include <iostream>
+#include <string>
 
-int main() 
-{ 
-map <string,int> myFirstMap = {{ "Mother", 37 }, 
-{ "Father", 40 },///map явно инициализирована 
-{ "Brother", 15 }, 
-{ "Sister", 20 }}; 
+using namespace std;
 
-///вывод явно инициализированной map на экран 
-for (auto it = myFirstMap.begin(); it != myFirstMap.end(); ++it) 
-{ 
-cout « it->first « " : " « it->second « endl; 
-} 
 
-char c; 
-map <char,int> mySecondMap; 
-for (int i = 0,c = 'a'; i < 5; ++i,++c) 
-{ 
-mySecondMap.insert ( pair<char,int>(c,i) ); 
-} 
+class map {
+private:
+	static const int tableSize = 16; 
+	struct item {
+		string key;
+		int value;
+		item* next;
+	};
+	item* Table[tableSize];
+public:
+	map();
+	int func(string key);
+	void addItem(string name, int points);
+	int getKey(string name);
+};
 
-///вывод не явно инициализированной map на экран 
-for (auto it = mySecondMap.begin(); it != mySecondMap.end(); ++it) 
-{ 
-cout « (*it).first « " : " « (*it).second « endl; 
-} 
-return 0; 
+map::map() {
+	for (int i = 0; i < tableSize; i++) {
+		Table[i] = new item;
+		Table[i]->key = "none";
+		Table[i]->value = 0;
+		Table[i]->next = nullptr;
+	}
+}
+
+int map::func(string key) {
+	int hash = 0;
+	int bucket;
+	for (int i = 0; i < key.length(); i++) { 
+		hash += (int)key[i];
+		
+	}
+	bucket = hash % tableSize;
+	return bucket;
+}
+
+void map::addItem(string name, int points) {
+	int bucket = func(name);
+	if (Table[bucket]->key == "none") {
+		Table[bucket]->key = name;
+		Table[bucket]->value = points;
+	}
+	else {
+		item* pointer = Table[bucket];
+		item* tmp = new item;
+		tmp->key = name;
+		tmp->value = points;
+		tmp->next = nullptr;
+		while (pointer->next != nullptr) {
+			pointer = pointer->next;
+		}
+		pointer->next = tmp;
+	}
+}
+
+int map::getKey(string name) {
+	int bucket = func(name);
+	bool found = false;
+	item* ptr = Table[bucket];
+	while (ptr != nullptr) {
+		if (ptr->key == name) {
+			found = true;
+			return ptr->value;
+		}
+		ptr = ptr->next;
+	}
+	if (found == false) {
+		return -1;
+	}
+}
+
+int main() {
+	map test;
+	int a, b, c, d, e, f;
+	test.addItem("Mike", 15);
+	test.addItem("Guffy", 15);
+	test.addItem("Antony", 0);
+	test.addItem("John", 30);
+	test.addItem("Dennis", 20);
+	a = test.getKey("Mike");
+	b = test.getKey("Guffy");
+	c = test.getKey("Dennis");
+	d = test.getKey("John");
+	e = test.getKey("Antony");
+	f = test.getKey("Malia");
+	cout << a << " " << b << " " << c << " " << d << " " << e << " " << f;
+	return 0;
 }
